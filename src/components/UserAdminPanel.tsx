@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { Avatar, Divider, List, Radio, Space, Typography, theme } from "antd";
+import {
+  Avatar,
+  Divider,
+  List,
+  Radio,
+  Space,
+  Typography,
+  theme,
+  Empty,
+  Alert,
+} from "antd";
 import {
   listZellerCustomers,
   type ZellerCustomer,
@@ -47,7 +57,6 @@ export default function UserAdminPanel() {
         setCustomers(items ?? []);
       })
       .catch((err: unknown) => {
-        // Show error to user and return empty list
         setError(err instanceof Error ? err.message : String(err));
         setCustomers([]);
       })
@@ -64,7 +73,10 @@ export default function UserAdminPanel() {
     .filter((c) => c.role === "Manager")
     .map((c) => ({ name: c.name, role: c.role }));
 
-  const displayData = userType === "Admin" ? fetchedAdmin : fetchedManager;
+  const displayData = useMemo(
+    () => (userType === "Admin" ? fetchedAdmin : fetchedManager),
+    [userType, fetchedAdmin, fetchedManager],
+  );
 
   return (
     <div style={{ maxWidth: 720, margin: "24px auto", width: "100%" }}>
@@ -101,7 +113,14 @@ export default function UserAdminPanel() {
         {userType} Users
       </Typography.Title>
 
-      {error ? <Typography.Text type="danger">{error}</Typography.Text> : null}
+      {error ? (
+        <Alert
+          type="error"
+          message={error}
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      ) : null}
 
       <List
         itemLayout="horizontal"
@@ -116,6 +135,7 @@ export default function UserAdminPanel() {
             ></List.Item.Meta>
           </List.Item>
         )}
+        locale={{ emptyText: <Empty description="No users to display" /> }}
       ></List>
     </div>
   );

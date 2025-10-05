@@ -1,9 +1,10 @@
+// Load AppSync config from environment variables
 const awsconfig = {
-  aws_appsync_graphqlEndpoint:
-    "https://prrwjjssnvhpbcdwbcwx3nm3zm.appsync-api.ap-southeast-2.amazonaws.com/graphql",
-  aws_appsync_region: "ap-southeast-2",
-  aws_appsync_authenticationType: "API_KEY",
-  aws_appsync_apiKey: "da2-d46dkkw5xnfbxkxkhi6twfb7re",
+  aws_appsync_graphqlEndpoint: import.meta.env
+    .VITE_AWS_APPSYNC_GRAPHQL_ENDPOINT as string,
+  aws_appsync_region: import.meta.env.VITE_AWS_APPSYNC_REGION as string,
+  aws_appsync_authenticationType: "API_KEY" as const,
+  aws_appsync_apiKey: import.meta.env.VITE_AWS_APPSYNC_API_KEY as string,
 } as const;
 
 export type AwsConfig = typeof awsconfig;
