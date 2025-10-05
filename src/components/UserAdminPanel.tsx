@@ -1,5 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Avatar, Divider, List, Radio, Space, Typography, theme } from "antd";
+import {
+  listZellerCustomers,
+  type ZellerCustomer,
+} from "../services/customers";
 
 type User = {
   name: string;
@@ -30,16 +34,37 @@ function InitialAvatar({ name }: { name: string }) {
 export default function UserAdminPanel() {
   const { token } = theme.useToken();
   const [userType, setUserType] = useState<"Admin" | "Manager">("Admin");
+  const [customers, setCustomers] = useState<ZellerCustomer[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data
-  const adminUsers: User[] = [
-    { name: "John Smith", role: "Admin" },
-    { name: "Adam Muller", role: "Admin" },
-    { name: "Perri Smith", role: "Admin" },
-  ];
-  const managerUsers: User[] = [];
+  // Fetch customers from API
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    listZellerCustomers()
+      .then((items) => {
+        setCustomers(items ?? []);
+      })
+      .catch((err: unknown) => {
+        // Show error to user and return empty list
+        setError(err instanceof Error ? err.message : String(err));
+        setCustomers([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
-  const data = userType === "Admin" ? adminUsers : managerUsers;
+  // Fetched lists from API data
+  const fetchedAdmin: User[] = (customers ?? [])
+    .filter((c) => c.role === "Admin")
+    .map((c) => ({ name: c.name, role: c.role }));
+  const fetchedManager: User[] = (customers ?? [])
+    .filter((c) => c.role === "Manager")
+    .map((c) => ({ name: c.name, role: c.role }));
+
+  const displayData = userType === "Admin" ? fetchedAdmin : fetchedManager;
 
   return (
     <div style={{ maxWidth: 720, margin: "24px auto", width: "100%" }}>
@@ -76,9 +101,12 @@ export default function UserAdminPanel() {
         {userType} Users
       </Typography.Title>
 
+      {error ? <Typography.Text type="danger">{error}</Typography.Text> : null}
+
       <List
         itemLayout="horizontal"
-        dataSource={data}
+        loading={loading}
+        dataSource={displayData}
         renderItem={(item) => (
           <List.Item>
             <List.Item.Meta
