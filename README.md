@@ -12,6 +12,10 @@ This app displays Zeller customers grouped by user type (Admin/Manager)
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js v22.x (recommended via nvm: `nvm use 22` or `nvm install 22`)
+
 1. Install dependencies
 
 ```bash
