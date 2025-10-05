@@ -43,7 +43,6 @@ export async function graphqlFetch<TResult>(
         signal: controller.signal,
       });
 
-      // Ensure we reject promptly when aborted, even if mocked fetch doesn't respect AbortSignal
       const abortPromise = new Promise<Response>((_, reject) => {
         controller.signal.addEventListener(
           "abort",
